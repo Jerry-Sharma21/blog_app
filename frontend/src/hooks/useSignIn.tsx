@@ -1,17 +1,20 @@
-import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 
-interface SignUpData {
+import {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+} from '../redux/user/userSlice';
+interface SignInData {
   email?: string;
   password?: string;
 }
 
 const useSignIn = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
 
-  const signIn = async (formData: SignUpData) => {
-    setLoading(true);
-    setError(null);
+  const signIn = async (formData: SignInData) => {
+    dispatch(signInStart());
 
     try {
       const response = await fetch(`/api/auth/signin`, {
@@ -25,7 +28,7 @@ const useSignIn = () => {
       const data = await response.json();
 
       if (data.success === false) {
-        return setError(data.message);
+        dispatch(signInFailure(data.message));
       }
 
       if (!response.ok) {
@@ -33,17 +36,19 @@ const useSignIn = () => {
       }
 
       if (!formData.email || !formData.password) {
-        return setError('Please fill out all fields');
+        dispatch(signInFailure('Please fill out all fields'));
+      }
+
+      if (response.ok) {
+        dispatch(signInSuccess(data));
       }
     } catch (error: any) {
       // Handle any errors that occurred during the request
-      setError(error.message || 'An error occurred');
-    } finally {
-      setLoading(false);
+      dispatch(signInFailure(error.message || 'An error occurred'));
     }
   };
 
-  return { signIn, loading, error };
+  return { signIn };
 };
 
 export default useSignIn;

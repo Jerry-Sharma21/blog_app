@@ -1,19 +1,26 @@
 import React, { ChangeEvent, useState } from 'react';
 
+import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 
 import useSignIn from '../hooks/useSignIn';
+import { UserState } from '../redux/user/userSlice';
 
 interface IFormData {
   email?: string;
   password?: string;
 }
 
+interface RootState {
+  user: UserState;
+}
+
 const SignInForm: React.FC = () => {
   const [formData, setFormData] = useState<IFormData>({});
-  const { signIn, error, loading } = useSignIn();
+  const { signIn } = useSignIn();
   const navigate = useNavigate();
+  const { loading, error } = useSelector((state: RootState) => state.user);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -69,7 +76,7 @@ const SignInForm: React.FC = () => {
 
       {error && (
         <Alert className='mt-5' color='failure'>
-          {error}
+          {error instanceof Error ? error.message : error}
         </Alert>
       )}
     </>
