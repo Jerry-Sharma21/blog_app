@@ -1,4 +1,4 @@
-import bycryptjs from 'bcryptjs';
+import bcryptjs from 'bcryptjs';
 import { NextFunction, Request, Response } from 'express';
 
 import User from '../models/user.model';
@@ -22,7 +22,7 @@ export const signUp = async (
     next(errorHandler(400, 'All fields are required'));
   }
 
-  const hashedPassword = bycryptjs.hashSync(password, 10);
+  const hashedPassword = bcryptjs.hashSync(password, 10);
 
   const newUser = new User({
     userName,
